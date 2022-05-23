@@ -56,12 +56,6 @@ BOOST_AUTO_TEST_CASE(AddLast_WorksCorrectly)
     BOOST_TEST(list.first()->next()->value() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(AddBefore_WorksCorrectly)
-{
-    LinkedList<int> list;
-    BOOST_TEST(true);
-}
-
 BOOST_AUTO_TEST_CASE(AddBefore_ThrowsLogicError_WhenListIsEmpty)
 {
     LinkedList<int> list = { 0 };
@@ -211,10 +205,12 @@ BOOST_AUTO_TEST_CASE(RemoveLast_WorksCorrectly_WithManyElements)
 {
     LinkedList<int> list = { 1, 2, 3 };
     list.removeLast();
+    BOOST_TEST(list.length() == 2);
     BOOST_TEST(list.first()->value() == 1);
     BOOST_TEST(list.last()->value() == 2);
     BOOST_TEST(list.last()->next() == nullptr);
-    list.removeFirst();
+    list.removeLast();
+    BOOST_TEST(list.length() == 1);
     BOOST_TEST(list.first() == list.last());
     BOOST_TEST(list.last()->next() == nullptr);
 }
