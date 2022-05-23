@@ -18,6 +18,7 @@ public:
 
         Node(const Node&);
 
+        /// Возвращает значение, которое содержит узел.
         T& value();
 
         /// Возвращает значение, которое содержит узел.
@@ -48,6 +49,8 @@ public:
     LinkedList(std::initializer_list<T> values);
 
     LinkedList(const LinkedList&);
+
+    LinkedList(LinkedList&&);
 
     ~LinkedList();
 
@@ -101,6 +104,8 @@ public:
 
     LinkedList<T>& operator=(const LinkedList<T>&);
 
+    LinkedList<T>& operator=(LinkedList<T>&&);
+
 private:
     Node* m_firstNode = nullptr;
     Node* m_lastNode = nullptr;
@@ -115,6 +120,17 @@ LinkedList<T>::LinkedList(const LinkedList<T>& obj)
         addLast(node->value());
         node = node->next();
     }
+}
+
+template <class T>
+LinkedList<T>::LinkedList(LinkedList<T>&& obj)
+{
+    m_firstNode = obj.m_firstNode;
+    obj.m_firstNode = nullptr;
+    m_lastNode = obj.m_lastNode;
+    obj.m_lastNode = nullptr;
+    m_length = obj.m_length;
+    obj.m_length = 0;
 }
 
 template <class T>
@@ -411,6 +427,23 @@ LinkedList<T>& LinkedList<T>::operator=(const LinkedList<T>& obj)
         }
     }
     
+    return *this;
+}
+
+template <class T>
+LinkedList<T>& LinkedList<T>::operator=(LinkedList<T>&& obj)
+{
+    if (this != &obj) {
+        clear();
+
+        m_firstNode = obj.m_firstNode;
+        obj.m_firstNode = nullptr;
+        m_lastNode = obj.m_lastNode;
+        obj.m_lastNode = nullptr;
+        m_length = obj.m_length;
+        obj.m_length = 0;
+    }
+
     return *this;
 }
 
