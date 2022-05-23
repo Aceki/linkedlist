@@ -32,6 +32,32 @@ BOOST_AUTO_TEST_CASE(CopyConstructor_WorksCorrectly)
     BOOST_TEST(list1.last()->value() == 2);
 }
 
+BOOST_AUTO_TEST_CASE(MoveConstructor_WorksCorrectly_WhenSourceListNotEmpty)
+{
+    LinkedList<int> list0 = { 1, 2 };
+    auto firstNode = list0.first();
+    auto lastNode = list0.last();
+    LinkedList<int> list1 = std::move(list0);
+    BOOST_TEST(list0.length() == 0);
+    BOOST_TEST(list0.first() == nullptr);
+    BOOST_TEST(list0.last() == nullptr);
+    BOOST_TEST(list1.length() == 2);
+    BOOST_TEST(list1.first() == firstNode);
+    BOOST_TEST(list1.last() == lastNode);
+}
+
+BOOST_AUTO_TEST_CASE(MoveConstructor_WorksCorrectly_WhenSourceListEmpty)
+{
+    LinkedList<int> list0;
+    LinkedList<int> list1 = std::move(list0);
+    BOOST_TEST(list0.length() == 0);
+    BOOST_TEST(list0.first() == nullptr);
+    BOOST_TEST(list0.last() == nullptr);
+    BOOST_TEST(list1.length() == 0);
+    BOOST_TEST(list1.first() == nullptr);
+    BOOST_TEST(list1.last() == nullptr);
+}
+
 BOOST_AUTO_TEST_CASE(AddFirst_WorksCorrectly)
 {
     LinkedList<int> list;
@@ -293,4 +319,72 @@ BOOST_AUTO_TEST_CASE(AssignOperator_WorksCorrectly)
     BOOST_TEST(list0.first() != list1.first());
     BOOST_TEST(list0.last()->value() == 4);
     BOOST_TEST(list0.last() != list1.last());
+}
+
+BOOST_AUTO_TEST_CASE(MoveAssignmentOperator_WorksCorrectly_WhenTargetAndSourceListEmpty)
+{
+    LinkedList<int> list0;
+    LinkedList<int> list1;
+    list0 = std::move(list1);
+    BOOST_TEST(list0.length() == 0);
+    BOOST_TEST(list0.first() == nullptr);
+    BOOST_TEST(list0.last() == nullptr);
+    BOOST_TEST(list1.length() == 0);
+    BOOST_TEST(list1.first() == nullptr);
+    BOOST_TEST(list1.last() == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(MoveAssignmentOperator_WorksCorrectly_WhenTargetListEmptyAndSourceListNotEmpty)
+{
+    LinkedList<int> list0;
+    LinkedList<int> list1 = { 1, 2 };
+    auto firstNode = list1.first();
+    auto lastNode = list1.last();
+    list0 = std::move(list1);
+    BOOST_TEST(list0.length() == 2);
+    BOOST_TEST(list0.first() == firstNode);
+    BOOST_TEST(list0.last() == lastNode);
+    BOOST_TEST(list1.length() == 0);
+    BOOST_TEST(list1.first() == nullptr);
+    BOOST_TEST(list1.last() == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(MoveAssignmentOperator_WorksCorrectly_WhenTargetListNotEmptyAndSourceListEmpty)
+{
+    LinkedList<int> list0 = { 1, 2 };
+    LinkedList<int> list1;
+    list0 = std::move(list1);
+    BOOST_TEST(list0.length() == 0);
+    BOOST_TEST(list0.first() == nullptr);
+    BOOST_TEST(list0.last() == nullptr);
+    BOOST_TEST(list1.length() == 0);
+    BOOST_TEST(list1.first() == nullptr);
+    BOOST_TEST(list1.last() == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(MoveAssignmentOperator_WorksCorrectly_WhenTargetAndSourceListNotEmpty)
+{
+
+    LinkedList<int> list0 = { 1, 2 };
+    LinkedList<int> list1 = { 1, 2 };
+    auto firstNode = list1.first();
+    auto lastNode = list1.last();
+    list0 = std::move(list1);
+    BOOST_TEST(list0.length() == 2);
+    BOOST_TEST(list0.first() == firstNode);
+    BOOST_TEST(list0.last() == lastNode);
+    BOOST_TEST(list1.length() == 0);
+    BOOST_TEST(list1.first() == nullptr);
+    BOOST_TEST(list1.last() == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(MoveAssignmentOperator_DoNothing_WhenAssignSelf)
+{
+    LinkedList<int> list = { 1, 2 };
+    auto firstNode = list.first();
+    auto lastNode = list.last();
+    list = std::move(list);
+    BOOST_TEST(list.length() == 2);
+    BOOST_TEST(list.first() == firstNode);
+    BOOST_TEST(list.last() == lastNode);
 }
