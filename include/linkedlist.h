@@ -124,12 +124,10 @@ LinkedList<T>::LinkedList(const LinkedList<T>& obj)
 
 template <class T>
 LinkedList<T>::LinkedList(LinkedList<T>&& obj)
+    : m_firstNode(obj.m_firstNode), m_lastNode(obj.m_lastNode), m_length(obj.m_length)
 {
-    m_firstNode = obj.m_firstNode;
     obj.m_firstNode = nullptr;
-    m_lastNode = obj.m_lastNode;
     obj.m_lastNode = nullptr;
-    m_length = obj.m_length;
     obj.m_length = 0;
 }
 
