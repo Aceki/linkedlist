@@ -1,9 +1,11 @@
 #pragma once
 
-#include <iostream>
+#include <chrono>
 #include <exception>
 #include <initializer_list>
 #include <stdexcept>
+
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> t_time;
 
 /// Односвязный список.
 template <class T>
@@ -27,13 +29,17 @@ public:
         /// Задаёт значение узла.
         void setValue(const T& value);
 
+        /// Возращает следующий узел.
+        Node* next() const;
+
         /// Задаёт следующий узел
         void setNext(Node* node);
 
+        /// Проверяет привязан ли к данному узлу следующий.
         bool hasNext() const;
 
-        /// Возращает следующий узел.
-        Node* next() const;
+        /// Возращает время создания узла.
+        t_time creationTime() const;
 
         Node& operator=(const Node&);
 
@@ -42,6 +48,7 @@ public:
     private:
         T m_value;
         Node* m_next = nullptr;
+        const t_time m_creationTime;
     };
 
     LinkedList() = default;
@@ -72,7 +79,7 @@ public:
     /// Удаляет последний элемент списка.
     void removeLast();
 
-    /// Удаляет первый найденый узел со значением `value` из списка.
+    /// Удаляет самый старый узел со значением `value`.
     void remove(const T& value);
 
     /// Удаляет узел `node` из списка.
@@ -270,29 +277,33 @@ void LinkedList<T>::remove(const T& value)
     if (isEmpty())
         throw std::logic_error("List is empty.");
 
-    if (value == m_firstNode->value())
-        removeFirst();
-    else {
-        if (length() == 1)
-            clear();
-        else {
-            Node* previousNode = m_firstNode;
-            while (previousNode->hasNext() && previousNode->next()->value() != value)
-                previousNode = previousNode->next();
-
-            if (previousNode == m_lastNode)
-                throw std::logic_error("List does not contains `value`.");
-
-            Node* node = previousNode->next();
-            Node* nextNode = node->next();
-
-            previousNode->setNext(nextNode);
-
-            delete node;
-
-            m_length--;
+    Node* previousNode = nullptr;
+    Node* oldestNode = m_firstNode->value() == value ? m_firstNode : nullptr;
+    Node* i = m_firstNode;
+    do {
+        if (i->hasNext() && i->next()->value() == value) {
+            if ((oldestNode == nullptr) 
+             || (i->next()->creationTime() < oldestNode->creationTime())) {
+                previousNode = i;
+                oldestNode = i->next();
+            }
         }
-    }
+
+        i = i->next();
+    } while (i != nullptr);
+
+    if (oldestNode == nullptr)
+        throw std::logic_error("List does not contains `value`.");
+    if (oldestNode == m_firstNode)
+        m_firstNode = oldestNode->next();
+    if (oldestNode == m_lastNode)
+        m_lastNode = previousNode;
+    if (previousNode != nullptr)
+        previousNode->setNext(oldestNode->next());
+
+    delete oldestNode;
+
+    m_length--;
 }
 
 template <class T>
@@ -308,23 +319,19 @@ void LinkedList<T>::remove(const Node* node)
     else if (node == m_lastNode)
         removeLast();
     else {
-        if (length() == 1) {
-            clear();
-        } else {
-            Node* previousNode = m_firstNode;
-            while (previousNode->hasNext() && previousNode->next() != node)
-                previousNode = previousNode->next();
+        Node* previousNode = m_firstNode;
+        while (previousNode->hasNext() && previousNode->next() != node)
+            previousNode = previousNode->next();
 
-            if (previousNode == m_lastNode)
-                throw std::logic_error("List does not contains `node`.");
+        if (previousNode == m_lastNode)
+            throw std::logic_error("List does not contains `node`.");
 
-            Node* nextNode = node->next();
-            previousNode->setNext(nextNode);
+        Node* nextNode = node->next();
+        previousNode->setNext(nextNode);
 
-            delete node;
+        delete node;
 
-            m_length--;
-        }
+        m_length--;
     }
 }
 
@@ -448,10 +455,12 @@ LinkedList<T>& LinkedList<T>::operator=(LinkedList<T>&& obj)
 // ---- Node methods ----
 
 template <class T>
-LinkedList<T>::Node::Node(const T& value, Node* next) : m_value(value), m_next(next) { }
+LinkedList<T>::Node::Node(const T& value, Node* next) 
+    : m_value(value), m_next(next), m_creationTime(std::chrono::high_resolution_clock::now()) 
+{ }
 
 template <class T>
-LinkedList<T>::Node::Node(const Node& obj) : m_value(obj.m_value) { }
+LinkedList<T>::Node::Node(const Node& obj) : Node(obj.m_value) { }
 
 template <class T>
 inline T& LinkedList<T>::Node::value()
@@ -472,9 +481,9 @@ inline void LinkedList<T>::Node::setValue(const T& value)
 }
 
 template <class T>
-inline void LinkedList<T>::Node::setNext(Node* node)
+inline typename LinkedList<T>::Node* LinkedList<T>::Node::next() const
 {
-    m_next = node;
+    return m_next;
 }
 
 template <class T>
@@ -484,9 +493,15 @@ inline bool LinkedList<T>::Node::hasNext() const
 }
 
 template <class T>
-inline typename LinkedList<T>::Node* LinkedList<T>::Node::next() const
+inline void LinkedList<T>::Node::setNext(Node* node)
 {
-    return m_next;
+    m_next = node;
+}
+
+template <class T>
+inline t_time LinkedList<T>::Node::creationTime() const
+{
+    return m_creationTime;
 }
 
 template <class T>
