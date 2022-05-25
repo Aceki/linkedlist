@@ -270,7 +270,8 @@ BOOST_AUTO_TEST_CASE(RemoveValue_WorksCorrectly_WithOneElement)
     BOOST_TEST(list.last() == nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(RemoveValue_RemoveFirstAddedValue) {
+BOOST_AUTO_TEST_CASE(RemoveValue_RemoveFirstAddedValue)
+{
     LinkedList<int> list = { 1, 2, 3, 2 };
     list.addFirst(2);
     list.remove(2);
@@ -293,12 +294,14 @@ BOOST_AUTO_TEST_CASE(RemoveValue_RemoveFirstAddedValue) {
     BOOST_TEST(list.last()->value() == 3);
 }
 
-BOOST_AUTO_TEST_CASE(RemoveNode_ThrowsLogicError_WhenNodePtrEqualsNullprt) {
+BOOST_AUTO_TEST_CASE(RemoveNode_ThrowsLogicError_WhenNodePtrEqualsNullprt)
+{
     LinkedList<int> list = { 1, 2, 3 };
     BOOST_CHECK_THROW(list.remove(nullptr), std::logic_error);
 }
 
-BOOST_AUTO_TEST_CASE(RemoveNode_ThrowsLogicError_WhenListDoesNotContainNode) {
+BOOST_AUTO_TEST_CASE(RemoveNode_ThrowsLogicError_WhenListDoesNotContainNode)
+{
     LinkedList<int> list0 = { 1, 2 };
     LinkedList<int> list1 = { 1, 2 };
     BOOST_CHECK_THROW(list0.remove(list1.first()), std::logic_error);
@@ -311,13 +314,15 @@ BOOST_AUTO_TEST_CASE(RemoveNode_ThrowsLogicError_WhenListIsEmpty)
     BOOST_CHECK_THROW(list.remove(&node), std::logic_error);
 }
 
-BOOST_AUTO_TEST_CASE(Find_ReturnsFirstMatchNode) {
+BOOST_AUTO_TEST_CASE(Find_ReturnsFirstMatchNode)
+{
     LinkedList<int> list = { 1, 2, 1, 3, 2 };
     BOOST_TEST(list.find(1) == list.first());
     BOOST_TEST(list.find(2) == list.first()->next());
 }
 
-BOOST_AUTO_TEST_CASE(Find_ReturnsNullptr_WhenListDoesNotContainValue) {
+BOOST_AUTO_TEST_CASE(Find_ReturnsNullptr_WhenListDoesNotContainValue)
+{
     LinkedList<int> list = {1, 2, 3};
     BOOST_TEST(list.find(-1) == nullptr);
     BOOST_TEST(list.find(0) == nullptr);
